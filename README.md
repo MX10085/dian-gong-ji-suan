@@ -39,9 +39,9 @@
 | --- | --- |
 | ![公式](screenshots/formula.PNG) | ![收藏](screenshots/favorites.PNG) |
 
-| 设置 |
-| --- |
-| ![设置](screenshots/settings_01.PNG) |
+| 设置（1） | 设置（2） |
+| --- | --- |
+| ![设置-1](screenshots/settings_01.PNG) | ![设置-2](screenshots/settings_02.PNG) |
 
 ## 🛠 技术说明
 
