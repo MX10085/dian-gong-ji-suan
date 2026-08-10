@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f766e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="电工计算">
+  <title>电工计算 — 功率/电流/线径/空开</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png" sizes="192x192">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="logo">⚡</div>
+    <div class="header-text">
+      <h1>电工计算</h1>
+      <p>功率 → 电流 → 线径 → 空开</p>
+    </div>
+  </header>
+
+  <div id="install-hint" class="install-hint" hidden>
+    <span>📱 添加到主屏幕，断网也能用</span>
+    <button id="install-close" type="button">知道了</button>
+  </div>
+
+  <main>
+    <!-- ============ 主页（总入口） ============ -->
+    <section class="tab-page" id="tab-home">
+      <section class="card home-card">
+        <div class="card-head">
+          <h2>快捷计算</h2>
+        </div>
+        <div class="home-grid">
+          <button class="home-item" type="button" data-go-tab="calc">
+            <span class="home-icon">⚡</span><span class="home-text">功率 / 电流 / 线径 / 空开</span><span class="home-arrow">›</span>
+          </button>
+          <button class="home-item" type="button" data-go-tab="calc" data-go-tool="wire">
+            <span class="home-icon">📐</span><span class="home-text">按线径算功率</span><span class="home-arrow">›</span>
+          </button>
+          <button class="home-item" type="button" data-go-tab="calc" data-go-tool="tool-conv">
+            <span class="home-icon">🔄</span><span class="home-text">单位换算</span><span class="home-arrow">›</span>
+          </button>
+          <button class="home-item" type="button" data-go-tab="calc" data-go-tool="tool-calc">
+            <span class="home-icon">🔢</span><span class="home-text">简易计算器</span><span class="home-arrow">›</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="card home-card">
+        <div class="card-head">
+          <h2>工具速查</h2>
+        </div>
+        <div class="home-grid">
+          <button class="home-item" type="button" data-go-tab="data" data-go-tool="tool-common">
+            <span class="home-icon">💡</span><span class="home-text">常用回路配置</span><span class="home-arrow">›</span>
+          </button>
+          <button class="home-item" type="button" data-go-tab="data" data-go-tool="tool-amp">
+            <span class="home-icon">📋</span><span class="home-text">载流量速查表</span><span class="home-arrow">›</span>
+          </button>
+          <button class="home-item" type="button" data-go-tab="data" data-go-tool="tool-vdrop">
+            <span class="home-icon">📏</span><span class="home-text">长度压降</span><span class="home-arrow">›</span>
+          </button>
+          <button class="home-item" type="button" data-go-tab="data" data-go-tool="tool-material">
+            <span class="home-icon">🧪</span><span class="home-text">材料参数</span><span class="home-arrow">›</span>
+          </button>
+          <button class="home-item" type="button" data-go-tab="data" data-go-tool="tool-motor">
+            <span class="home-icon">⚙️</span><span class="home-text">电机选型</span><span class="home-arrow">›</span>
+          </button>
+          <button class="home-item" type="button" data-go-tab="data" data-go-tool="tool-load">
+            <span class="home-icon">📊</span><span class="home-text">总负荷统计</span><span class="home-arrow">›</span>
+          </button>
+          <button class="home-item" type="button" data-go-tab="data" data-go-tool="tool-cable">
+            <span class="home-icon">🧵</span><span class="home-text">电缆尺寸重量</span><span class="home-arrow">›</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="card home-card">
+        <div class="card-head">
+          <h2>资料公式</h2>
+        </div>
+        <div class="home-grid">
+          <button class="home-item" type="button" data-go-tab="formula">
+            <span class="home-icon">∑</span><span class="home-text">常用公式</span><span class="home-arrow">›</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="card home-card">
+        <div class="card-head">
+          <h2>我的</h2>
+        </div>
+        <div class="home-grid">
+          <button class="home-item" type="button" data-go-tab="fav">
+            <span class="home-icon">☆</span><span class="home-text">我的收藏</span><span class="home-arrow">›</span>
+          </button>
+          <button class="home-item" type="button" data-go-tab="settings">
+            <span class="home-icon">⚙</span><span class="home-text">系统设置</span><span class="home-arrow">›</span>
+          </button>
+        </div>
+      </section>
+    </section>
+
+    <!-- ============ 计算（主页） ============ -->
+    <section class="tab-page" id="tab-calc" hidden>
+      <section id="page-input">
+        <!-- 常用场景 -->
+        <section class="card" id="preset-card" hidden>
+          <div class="card-head">
+            <h2>常用场景</h2>
+            <button id="preset-more" class="mini-btn more-chip" type="button">更多 ∨</button>
+          </div>
+          <div class="chips collapsed" id="presets"></div>
+        </section>
+
+        <!-- 输入 -->
+        <section class="card input-card">
+          <div class="seg" id="mode-seg">
+            <button class="seg-btn active" data-mode="power" type="button">按功率算</button>
+            <button class="seg-btn" data-mode="current" type="button">按电流算</button>
+            <button class="seg-btn" data-mode="wire" type="button">按线径算</button>
+          </div>
+
+          <div class="sec-label">负载参数</div>
+          <div class="fields">
+            <label class="field" id="power-field">
+              <span class="field-label">功率</span>
+              <div class="input-wrap">
+                <input id="power" type="number" inputmode="decimal" min="0" step="0.1" placeholder="例如 6">
+                <select id="power-unit" class="unit-select">
+                  <option value="kw" selected>kW</option>
+                  <option value="w">W</option>
+                  <option value="hp">HP</option>
+                </select>
+              </div>
+            </label>
+
+            <label class="field" id="current-field" hidden>
+              <span class="field-label">工作电流 <em>A</em></span>
+              <div class="input-wrap">
+                <input id="current" type="number" inputmode="decimal" min="0" step="0.5" placeholder="例如 27">
+                <span class="unit">A</span>
+              </div>
+            </label>
+
+            <label class="field" id="wire-field" hidden>
+              <span class="field-label">线径 <em>mm²</em></span>
+              <select id="wire-area" class="area-select"></select>
+            </label>
+
+            <div class="grid-2">
+              <div class="field">
+                <span class="field-label">供电方式</span>
+                <div class="seg" id="phase-seg">
+                  <button class="seg-btn active" data-phase="1" type="button">单相 220V</button>
+                  <button class="seg-btn" data-phase="3" type="button">三相 380V</button>
+                </div>
+              </div>
+              <label class="field">
+                <span class="field-label">负载类型</span>
+                <select id="load-type">
+                  <option value="resistive">阻性 · 电热/照明</option>
+                  <option value="inductive">感性 · 电机/水泵</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="field" id="cos-field">
+              <span class="field-label">功率因数 cosφ <output id="cos-val">1.00</output></span>
+              <input id="cos" type="range" min="0.5" max="1" step="0.05" value="1">
+            </label>
+          </div>
+
+          <div class="sec-label">敷设条件</div>
+          <div class="fields">
+            <div class="grid-2">
+              <label class="field">
+                <span class="field-label">导线类型</span>
+                <select id="material">
+                  <option value="bvr" selected>多股铜线（BVR 软线）</option>
+                  <option value="bv">单股铜线（BV 硬线）</option>
+                  <option value="al">铝线</option>
+                </select>
+              </label>
+              <label class="field">
+                <span class="field-label">敷设方式</span>
+                <select id="install-mode">
+                  <option value="pipe2">穿管 2 根（单相）</option>
+                  <option value="pipe3">穿管 3 根（三相）</option>
+                  <option value="pipe4">穿管 4 根及以上</option>
+                  <option value="exposed">明敷（桥架/槽板）</option>
+                </select>
+              </label>
+            </div>
+            <div class="grid-2">
+              <label class="field">
+                <span class="field-label">环境温度</span>
+                <select id="temp">
+                  <option value="25">25℃</option>
+                  <option value="30">30℃</option>
+                  <option value="35" selected>35℃</option>
+                  <option value="40">40℃</option>
+                  <option value="45">45℃</option>
+                </select>
+              </label>
+              <label class="field">
+                <span class="field-label">线路长度 <em>选填</em></span>
+                <div class="input-wrap">
+                  <input id="vdrop-len" type="number" inputmode="decimal" min="0" step="1" placeholder="例如 50">
+                  <span class="unit">m</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <button id="calc-btn" class="btn-primary" type="button">开始计算</button>
+          <p class="input-hint" id="input-hint" hidden>请先填写功率（或工作电流）再计算</p>
+        </section>
+
+      </section>
+
+      <!-- 结果页 -->
+      <section id="page-result" hidden>
+        <section class="card result-card" id="result-card">
+          <div class="result-head">
+            <button id="back-btn" class="back-btn" type="button">← 返回</button>
+            <h2>计算结果</h2>
+            <button id="label-btn" class="back-btn" type="button">标注卡</button>
+            <button id="fav-btn" class="back-btn fav-btn" type="button">☆ 收藏</button>
+          </div>
+          <div class="current-box">
+            <div class="current-label" id="r-current-label">工作电流</div>
+            <div class="current-value"><span id="r-current">0</span><small id="r-current-unit">A</small></div>
+            <div class="quick-note" id="r-quick"></div>
+          </div>
+          <div class="tiles">
+            <div class="tile">
+              <div class="tile-label">最小线径</div>
+              <div class="tile-value" id="r-wire">—</div>
+              <div class="tile-sub" id="r-wire-sub"></div>
+            </div>
+            <div class="tile">
+              <div class="tile-label">建议空开</div>
+              <div class="tile-value" id="r-breaker">—</div>
+              <div class="tile-sub">按计算电流留余量</div>
+            </div>
+            <div class="tile">
+              <div class="tile-label">漏保建议</div>
+              <div class="tile-value" id="r-rcd">—</div>
+              <div class="tile-sub">插座/潮湿回路建议加</div>
+            </div>
+          </div>
+          <div class="advice" id="r-advice"></div>
+          <div class="vdrop-result" id="vdrop-result" hidden></div>
+          <button id="recalc-btn" class="btn-secondary" type="button">返回修改</button>
+        </section>
+      </section>
+
+      <section class="card" id="tool-conv">
+        <div class="card-head">
+          <h2>🔄 单位换算</h2>
+          <span class="card-hint">输入即换算</span>
+        </div>
+        <div class="fields">
+          <div class="grid-2">
+            <label class="field">
+              <span class="field-label">类型</span>
+              <select id="conv-type">
+                <option value="power">功率 kW / W / HP</option>
+                <option value="length">长度 m / cm / mm / ft / in</option>
+                <option value="temp">温度 ℃ / ℉</option>
+                <option value="awg">线径 mm² / AWG</option>
+              </select>
+            </label>
+            <label class="field">
+              <span class="field-label">输入单位</span>
+              <select id="conv-from"></select>
+            </label>
+          </div>
+          <label class="field">
+            <span class="field-label">数值</span>
+            <div class="input-wrap">
+              <input id="conv-value" type="number" inputmode="decimal" min="0" step="any" placeholder="输入数值">
+              <span class="unit" id="conv-unit">kW</span>
+            </div>
+          </label>
+        </div>
+        <div class="vdrop-result" id="conv-result" hidden></div>
+      </section>
+
+      <section class="card" id="tool-calc">
+        <div class="card-head">
+          <h2>🔢 简易计算器</h2>
+          <span class="card-hint">结果可代入上方计算</span>
+        </div>
+        <div class="calc-display">
+          <div class="calc-expr" id="calc-expr">&nbsp;</div>
+          <div class="calc-cur" id="calc-cur">0</div>
+        </div>
+        <div class="calc-pad" id="calc-pad">
+          <button type="button" data-k="C" class="calc-aux">C</button>
+          <button type="button" data-k="back" class="calc-aux">⌫</button>
+          <button type="button" data-k="percent" class="calc-aux">%</button>
+          <button type="button" data-k="/" class="calc-op">÷</button>
+          <button type="button" data-k="7">7</button>
+          <button type="button" data-k="8">8</button>
+          <button type="button" data-k="9">9</button>
+          <button type="button" data-k="*" class="calc-op">×</button>
+          <button type="button" data-k="4">4</button>
+          <button type="button" data-k="5">5</button>
+          <button type="button" data-k="6">6</button>
+          <button type="button" data-k="-" class="calc-op">−</button>
+          <button type="button" data-k="1">1</button>
+          <button type="button" data-k="2">2</button>
+          <button type="button" data-k="3">3</button>
+          <button type="button" data-k="+" class="calc-op">+</button>
+          <button type="button" data-k="0" class="calc-zero">0</button>
+          <button type="button" data-k=".">.</button>
+          <button type="button" data-k="=" class="calc-eq">=</button>
+        </div>
+        <button id="calc-apply" class="btn-secondary" type="button">把结果代入主页计算</button>
+      </section>
+
+      <!-- 历史 -->
+      <section class="card" id="history-card" hidden>
+        <div class="card-head">
+          <h2>历史记录</h2>
+          <button class="link-btn" id="clear-history" type="button">清空</button>
+        </div>
+        <ul class="history" id="history"></ul>
+      </section>
+    </section>
+
+    <!-- ============ 工具 ============ -->
+    <section class="tab-page" id="tab-data" hidden>
+      <nav class="tool-nav" id="tool-nav">
+        <button type="button" data-tool="tool-common">回路</button>
+        <button type="button" data-tool="tool-load">总负荷</button>
+        <button type="button" data-tool="tool-motor">电机</button>
+        <button type="button" data-tool="tool-vdrop">压降</button>
+        <button type="button" data-tool="tool-cable">电缆</button>
+        <button type="button" data-tool="tool-material">材料</button>
+        <button type="button" data-tool="tool-amp">载流量</button>
+      </nav>
+
+      <section class="card" id="tool-common">
+        <div class="card-head">
+          <h2>💡 常用回路配置</h2>
+          <button id="circuit-more" class="mini-btn more-chip" type="button">更多回路 ∨</button>
+        </div>
+        <div id="circuit-table"></div>
+      </section>
+
+      <section class="card" id="tool-amp">
+        <div class="card-head">
+          <h2>📋 载流量速查</h2>
+          <span class="card-hint">铜铝 · 明敷/穿管 · 温度修正</span>
+        </div>
+        <div class="grid-2">
+          <label class="field">
+            <span class="field-label">材质</span>
+            <select id="amp-material">
+              <option value="cu">铜</option>
+              <option value="al">铝</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="field-label">敷设方式</span>
+            <select id="amp-install">
+              <option value="pipe2">穿管 2 根</option>
+              <option value="pipe3">穿管 3 根</option>
+              <option value="pipe4">穿管 4 根及以上</option>
+              <option value="exposed">明敷</option>
+            </select>
+          </label>
+        </div>
+        <label class="field">
+          <span class="field-label">环境温度 <em>35℃ 基准</em></span>
+          <select id="amp-temp">
+            <option value="25">25℃（×1.15）</option>
+            <option value="30">30℃（×1.07）</option>
+            <option value="35" selected>35℃（×1.00）</option>
+            <option value="40">40℃（×0.92）</option>
+            <option value="45">45℃（×0.84）</option>
+          </select>
+        </label>
+        <div id="amp-table"></div>
+      </section>
+
+      <section class="card" id="tool-vdrop">
+        <div class="card-head">
+          <h2>📏 长度压降</h2>
+          <span class="card-hint">独立校核 · 可反算最大长度</span>
+        </div>
+        <div class="fields">
+          <div class="grid-2">
+            <div class="field">
+              <span class="field-label">供电方式</span>
+              <div class="seg" id="vd-phase-seg">
+                <button class="seg-btn active" data-vd-phase="1" type="button">单相</button>
+                <button class="seg-btn" data-vd-phase="3" type="button">三相</button>
+              </div>
+            </div>
+            <label class="field">
+              <span class="field-label">系统电压</span>
+              <select id="vd-voltage">
+                <option value="220">220V</option>
+                <option value="380">380V</option>
+              </select>
+            </label>
+          </div>
+          <div class="grid-2">
+            <label class="field">
+              <span class="field-label">电流 <em>A</em></span>
+              <div class="input-wrap">
+                <input id="vd-current" type="number" inputmode="decimal" min="0" step="0.5" placeholder="例如 27">
+                <span class="unit">A</span>
+              </div>
+            </label>
+            <label class="field">
+              <span class="field-label">长度 <em>m</em></span>
+              <div class="input-wrap">
+                <input id="vd-len" type="number" inputmode="decimal" min="0" step="1" placeholder="例如 50">
+                <span class="unit">m</span>
+              </div>
+            </label>
+          </div>
+          <div class="grid-2">
+            <label class="field">
+              <span class="field-label">材质</span>
+              <select id="vd-material">
+                <option value="0.018">铜</option>
+                <option value="0.0283">铝</option>
+              </select>
+            </label>
+            <label class="field">
+              <span class="field-label">截面积</span>
+              <select id="vd-area" class="area-select"></select>
+            </label>
+          </div>
+        </div>
+        <button id="vd-btn" class="btn-primary btn-sm" type="button">计算压降</button>
+        <div class="vdrop-result" id="vd-result" hidden></div>
+      </section>
+
+      <section class="card" id="tool-material">
+        <div class="card-head">
+          <h2>🧪 材料参数</h2>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr><th>材质</th><th>电阻率 ρ (20℃)</th><th>导电率 σ</th><th>密度 g/cm³</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>铜（紫铜）</td><td>0.0175 Ω·mm²/m</td><td>57.1 MS/m</td><td>8.89</td></tr>
+            <tr><td>铝</td><td>0.0283 Ω·mm²/m</td><td>35.3 MS/m</td><td>2.70</td></tr>
+            <tr><td>铁</td><td>0.100 Ω·mm²/m</td><td>10 MS/m</td><td>7.86</td></tr>
+          </tbody>
+        </table>
+        <div class="sec-label">导体电阻计算 R = ρ·L/S</div>
+        <div class="fields">
+          <label class="field">
+            <span class="field-label">材质</span>
+            <select id="mat-r-material">
+              <option value="0.0175">铜（紫铜）</option>
+              <option value="0.0283">铝</option>
+              <option value="0.100">铁</option>
+            </select>
+          </label>
+          <div class="grid-2">
+            <label class="field">
+              <span class="field-label">长度 <em>m</em></span>
+              <div class="input-wrap">
+                <input id="mat-r-len" type="number" inputmode="decimal" min="0" step="1" placeholder="例如 100">
+                <span class="unit">m</span>
+              </div>
+            </label>
+            <label class="field">
+              <span class="field-label">截面积 <em>mm²</em></span>
+              <div class="input-wrap">
+                <input id="mat-r-area" type="number" inputmode="decimal" min="0" step="0.5" placeholder="例如 4">
+                <span class="unit">mm²</span>
+              </div>
+            </label>
+          </div>
+        </div>
+        <button id="mat-r-btn" class="btn-primary btn-sm" type="button">计算电阻</button>
+        <div class="vdrop-result" id="mat-r-result" hidden></div>
+      </section>
+
+      <section class="card" id="tool-motor">
+        <div class="card-head">
+          <h2>⚙️ 电机选型</h2>
+          <span class="card-hint">三相 / 单相 · 直接启动</span>
+        </div>
+        <div class="fields">
+          <div class="grid-2">
+            <label class="field">
+              <span class="field-label">电机功率 <em>kW</em></span>
+              <div class="input-wrap">
+                <input id="motor-kw" type="number" inputmode="decimal" min="0" step="0.5" placeholder="例如 15">
+                <span class="unit">kW</span>
+              </div>
+            </label>
+            <label class="field">
+              <span class="field-label">供电电压</span>
+              <select id="motor-volt">
+                <option value="380" selected>380V 三相</option>
+                <option value="220">220V 单相</option>
+              </select>
+            </label>
+          </div>
+          <label class="field">
+            <span class="field-label">效率 η</span>
+            <select id="motor-eff">
+              <option value="0.85">0.85（小电机）</option>
+              <option value="0.88" selected>0.88（常用）</option>
+              <option value="0.90">0.90（大电机）</option>
+              <option value="0.92">0.92（高效）</option>
+            </select>
+          </label>
+        </div>
+        <button id="motor-btn" class="btn-primary btn-sm" type="button">计算电机选型</button>
+        <div class="vdrop-result" id="motor-result" hidden></div>
+      </section>
+
+      <section class="card" id="tool-load">
+        <div class="card-head">
+          <h2>📊 总负荷统计</h2>
+          <span class="card-hint">配电箱进线估算</span>
+        </div>
+        <div id="load-rows"></div>
+        <button id="load-add" class="mini-btn" type="button">+ 添加回路</button>
+        <label class="field">
+          <span class="field-label">需用系数 Kx <output id="load-kx-val">0.70</output></span>
+          <input id="load-kx" type="range" min="0.4" max="1" step="0.05" value="0.7">
+        </label>
+        <button id="load-btn" class="btn-primary btn-sm" type="button">计算总负荷</button>
+        <div class="vdrop-result" id="load-result" hidden></div>
+      </section>
+
+      <section class="card" id="tool-cable">
+        <div class="card-head">
+          <h2>🧵 电缆尺寸重量</h2>
+          <span class="card-hint">按国标密度法估算</span>
+        </div>
+        <div class="fields">
+          <div class="grid-2">
+            <label class="field">
+              <span class="field-label">型号</span>
+              <select id="cable-type">
+                <option value="BV">BV 铜芯单股</option>
+                <option value="BVR">BVR 铜芯多股</option>
+                <option value="YJV">YJV 铜芯电缆</option>
+                <option value="YJLV">YJLV 铝芯电缆</option>
+              </select>
+            </label>
+            <label class="field">
+              <span class="field-label">芯数</span>
+              <select id="cable-cores">
+                <option value="1">1 芯</option>
+                <option value="3">3 芯</option>
+                <option value="4">4 芯</option>
+                <option value="5">5 芯</option>
+              </select>
+            </label>
+          </div>
+          <div class="grid-2">
+            <label class="field">
+              <span class="field-label">截面积</span>
+              <select id="cable-area" class="area-select"></select>
+            </label>
+            <label class="field">
+              <span class="field-label">长度 <em>m · 可选</em></span>
+              <div class="input-wrap">
+                <input id="cable-len" type="number" inputmode="decimal" min="0" step="1" placeholder="例如 100">
+                <span class="unit">m</span>
+              </div>
+            </label>
+          </div>
+        </div>
+        <button id="cable-btn" class="btn-primary btn-sm" type="button">计算尺寸重量</button>
+        <div class="vdrop-result" id="cable-result" hidden></div>
+        <p class="note">密度按铜 8.89 / 铝 2.70 / PVC 1.40 / XLPE 0.92 g/cm³ 估算，外径与重量为参考值，以厂家样本为准。</p>
+      </section>
+    </section>
+
+    <!-- ============ 公式 ============ -->
+    <section class="tab-page" id="tab-formula" hidden>
+      <section class="card">
+        <div class="card-head">
+          <h2>∑ 常用公式</h2>
+          <span class="card-hint">点 ☆ 收藏 · 可跳去计算</span>
+        </div>
+        <div id="formula-list"></div>
+      </section>
+    </section>
+
+    <!-- ============ 收藏 ============ -->
+    <section class="tab-page" id="tab-fav" hidden>
+      <section class="card">
+        <div class="card-head">
+          <h2>☆ 我的收藏</h2>
+          <div class="fav-actions">
+            <button id="fav-export" class="link-btn" type="button">导出</button>
+            <button id="fav-copy" class="link-btn" type="button">复制全部</button>
+            <button id="fav-clear" class="link-btn" type="button">清空</button>
+          </div>
+        </div>
+        <div id="fav-empty" hidden>
+          <p class="empty-tip">还没有收藏。计算结果页点「☆ 收藏」，或到公式页收藏常用公式。</p>
+        </div>
+        <h3 class="fav-group-title">计算结果</h3>
+        <ul class="fav-list" id="fav-calcs"></ul>
+        <h3 class="fav-group-title">公式</h3>
+        <ul class="fav-list" id="fav-formulas"></ul>
+      </section>
+    </section>
+
+    <!-- ============ 设置 ============ -->
+    <section class="tab-page" id="tab-settings" hidden>
+      <section class="card">
+        <div class="card-head">
+          <h2>默认参数</h2>
+        </div>
+        <div class="fields">
+          <label class="field">
+            <span class="field-label">默认导线类型</span>
+            <select id="set-material">
+              <option value="bvr">多股铜线（BVR 软线）</option>
+              <option value="bv">单股铜线（BV 硬线）</option>
+              <option value="al">铝线</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="field-label">默认敷设方式</span>
+            <select id="set-install">
+              <option value="pipe2">穿管 2 根（单相）</option>
+              <option value="pipe3">穿管 3 根（三相）</option>
+              <option value="pipe4">穿管 4 根及以上</option>
+              <option value="exposed">明敷（桥架/槽板）</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="field-label">默认环境温度</span>
+            <select id="set-temp">
+              <option value="25">25℃</option>
+              <option value="30">30℃</option>
+              <option value="35">35℃</option>
+              <option value="40">40℃</option>
+              <option value="45">45℃</option>
+            </select>
+          </label>
+        </div>
+        <p class="note">保存后立即生效，每次打开自动套用。</p>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>显示设置</h2>
+        </div>
+        <label class="switch-row">
+          <span>大字体（现场看更清楚）</span>
+          <input id="set-large" type="checkbox">
+        </label>
+        <label class="switch-row">
+          <span>高对比（深色文字强边框）</span>
+          <input id="set-contrast" type="checkbox">
+        </label>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>数据说明</h2>
+        </div>
+        <p class="note">载流量按铜芯线常规值估算（35℃ 基准），铝线按约 78% 折算；电缆尺寸重量按国标密度法估算。所有结果供现场参考，最终以当地规范和厂家样本为准。</p>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>数据管理</h2>
+        </div>
+        <button id="set-export" class="btn-secondary" type="button">导出收藏（JSON）</button>
+        <button id="set-export-all" class="btn-secondary" type="button">导出全部数据（备份）</button>
+        <button id="set-import-all" class="btn-secondary" type="button">导入备份</button>
+        <input id="import-file" type="file" accept="application/json" hidden>
+        <button id="set-clear-history" class="btn-secondary btn-danger-soft" type="button">清空历史记录</button>
+        <button id="set-clear-favs" class="btn-secondary btn-danger-soft" type="button">清空收藏</button>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>关于我们</h2>
+        </div>
+        <p class="note">电工计算 v1.2</p>
+        <p class="note">作者：智信水电</p>
+        <p class="note">微信：<span class="copyable" onclick="copyText('717700632')">717700632（点击复制）</span></p>
+        <p class="note disclaimer">免责声明：本工具所有计算与数据均为估算参考，不构成设计或施工依据；实际选线、选型及安装请以当地电气规范、设计图纸和厂家样本为准，因使用本工具产生的任何损失，由使用者自行承担。</p>
+        <p class="note">更新记录：v1.2 新增主页总入口、工具分类导航、单位换算、简易计算器、电机 220V 单相支持；v1.1 新增资料、公式库、收藏、设置与底部五菜单导航。</p>
+      </section>
+    </section>
+  </main>
+
+  <footer>
+    <p>速查：三相 380V ≈ 1kW / 2A · 单相 220V ≈ 1kW / 4.5A</p>
+    <p>载流量按铜芯线常规值估算（35℃ 基准），铝线约按 78% 折算，现场以当地规范为准。</p>
+  </footer>
+
+  <!-- 底部悬浮菜单 -->
+  <nav class="tabbar" id="tabbar">
+    <button class="tab-btn active" data-tab="home" type="button">
+      <span class="tab-icon">🏠</span><span class="tab-label">主页</span>
+    </button>
+    <button class="tab-btn" data-tab="calc" type="button">
+      <span class="tab-icon">⚡</span><span class="tab-label">计算</span>
+    </button>
+    <button class="tab-btn" data-tab="data" type="button">
+      <span class="tab-icon">📐</span><span class="tab-label">工具</span>
+    </button>
+    <button class="tab-btn" data-tab="formula" type="button">
+      <span class="tab-icon">∑</span><span class="tab-label">公式</span>
+    </button>
+    <button class="tab-btn" data-tab="fav" type="button">
+      <span class="tab-icon">☆</span><span class="tab-label">收藏</span>
+    </button>
+    <button class="tab-btn" data-tab="settings" type="button">
+      <span class="tab-icon">⚙</span><span class="tab-label">设置</span>
+    </button>
+  </nav>
+
+  <div id="toast" class="toast" hidden></div>
+  <script src="app.js"></script>
+</body>
+</html>
