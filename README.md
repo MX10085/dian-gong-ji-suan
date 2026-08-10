@@ -29,19 +29,19 @@
 
 | 主页 | 计算（输入） |
 | --- | --- |
-| ![主页](screenshots/home.PNG) | ![计算-输入](screenshots/calculation_01.PNG) |
+| <img src="screenshots/home.PNG" width="230" alt="主页"> | <img src="screenshots/calculation_01.PNG" width="230" alt="计算-输入"> |
 
 | 计算（结果） | 工具 |
 | --- | --- |
-| ![计算-结果](screenshots/calculation_02.PNG) | ![工具](screenshots/tools.PNG) |
+| <img src="screenshots/calculation_02.PNG" width="230" alt="计算-结果"> | <img src="screenshots/tools.PNG" width="230" alt="工具"> |
 
 | 公式 | 收藏 |
 | --- | --- |
-| ![公式](screenshots/formula.PNG) | ![收藏](screenshots/favorites.PNG) |
+| <img src="screenshots/formula.PNG" width="230" alt="公式"> | <img src="screenshots/favorites.PNG" width="230" alt="收藏"> |
 
 | 设置（1） | 设置（2） |
 | --- | --- |
-| ![设置-1](screenshots/settings_01.PNG) | ![设置-2](screenshots/settings_02.PNG) |
+| <img src="screenshots/settings_01.PNG" width="230" alt="设置-1"> | <img src="screenshots/settings_02.PNG" width="230" alt="设置-2"> |
 
 ## 🛠 技术说明
 
