@@ -1,4 +1,4 @@
-const CACHE = "sdx-v22";
+const CACHE = "sdx-v23";
 const ASSETS = [
   "./",
   "./index.html",
